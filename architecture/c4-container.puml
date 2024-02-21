@@ -3,6 +3,7 @@ plantuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/latest/C4_Container.puml
 
 LAYOUT_WITH_LEGEND()
+LAYOUT_LANDSCAPE()
 
 title
     <b>Tracker system</b>
@@ -24,13 +25,13 @@ ContainerDb(broker, "Message Broker", "Kafka", "Шина данных для о�
 Rel(user, front, "Requests", "HTTPS")
 Rel(front, taskTrackerApi, "Uses", "Rest API")
 
-Rel(taskTrackerApi, userDatabase, "Reads/Writes", "SQL")
+Rel_D(taskTrackerApi, userDatabase, "Reads/Writes", "SQL")
 Rel(taskTrackerApi, TasksService, "Requests", "gRPC")
 Rel(taskTrackerApi, statisticsService, "SQL Queries", "SQL")
 
 Rel(TasksService, broker, "Produce", "gRPC")
-Rel(TasksService, tasksDatabase, "Read/Write", "SQL")
+Rel_D(TasksService, tasksDatabase, "Read/Write", "SQL")
 
 Rel(broker, statisticsService, "Consume", "gRPC")
-Rel(statisticsService, statisticsDatabase, "Reads/Writes")
+Rel_D(statisticsService, statisticsDatabase, "Reads/Writes")
 @enduml
