@@ -1,0 +1,36 @@
+plantuml
+@startuml con
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/latest/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title
+    <b>Tracker system</b>
+    <i>C4 Container</i>
+end title
+
+Person(user, "User", "Пользователь системы трекера")
+
+Container(front, "Frontend", "Js", "Интерфейс для пользователя")
+Container(taskTrackerApi, "Task Tracker API", "Go", "Выполняет роль координатора команд пользователя")
+Container(statisticsService, "Statistics Service", "gRPC", "Сервис для обработки статистики задач")
+Container(TasksService, "Tasks and comments service", "Go", "Главный сервис для обработки задач")
+
+ContainerDb(statisticsDatabase, "Statistics Database", "ClickHouse", "Хранит статистику по задачам")
+ContainerDb(userDatabase, "User Database", "PostgreSQL", "Сохраняет информацию о пользователях")
+ContainerDb(tasksDatabase, "БД для тасок, лайков, комментариев", "PostgreSQL", "Хранит информацию о всех задачах")
+ContainerDb(broker, "Message Broker", "Kafka", "Шина данных для обновления статистики")
+
+Rel(user, front, "Requests", "HTTPS")
+Rel(front, taskTrackerApi, "Uses", "Rest API")
+
+Rel(taskTrackerApi, userDatabase, "Reads/Writes", "SQL")
+Rel(taskTrackerApi, TasksService, "Requests", "gRPC")
+Rel(taskTrackerApi, statisticsService, "SQL Queries", "SQL")
+
+Rel(TasksService, broker, "Produce", "gRPC")
+Rel(TasksService, tasksDatabase, "Read/Write", "SQL")
+
+Rel(broker, statisticsService, "Consume", "gRPC")
+Rel(statisticsService, statisticsDatabase, "Reads/Writes")
+@enduml

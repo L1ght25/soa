@@ -1,0 +1,52 @@
+plantuml
+@startuml er
+
+!define Table(name,desc) class name as "desc" << (T,SkyBlue) >>
+!define primary_key(x) <u>x</u>
+!define foreign_key(x) <color:Orange>x</color>
+
+title
+    <b>Tracker system</b>
+    <i>ER-diagram</i>
+end title
+
+Table(user, "User") {
+    +primary_key(id) : int
+    +username : varchar
+    +password : varchar
+    +email : varchar
+}
+
+Table(task, "Задача") {
+    +primary_key(id) : int
+    +foreign_key(user_id) : int
+    +title : varchar
+    +description : text
+    +status : varchar
+}
+
+Table(statistic, "Статистика") {
+    +primary_key(id) : int
+    +foreign_key(task_id) : int
+    +views : unsigned int
+    +likes : unsigned int
+}
+
+Table(comment, "Комментарии") {
+    +primary_key(id) : int
+    +foreign_key(task_id) : int
+    +foreign_key(user_id) : int
+    +foreign_key(parent_id) : int
+    +text : text
+    +created_at : datetime
+}
+
+user <-- task
+user <-- comment
+
+
+task <-- statistic
+task <-- comment
+
+comment <-- comment : maybe subcomments
+@enduml
