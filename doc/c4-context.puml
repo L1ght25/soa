@@ -1,0 +1,23 @@
+plantuml
+
+
+@startuml context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/latest/C4_Context.puml
+' !include https://github.com/plantuml/plantuml-stdlib/blob/master/cloudinsight/kafka.puml
+skinparam wrapWidth 300
+
+LAYOUT_WITH_LEGEND()
+LAYOUT_LANDSCAPE()
+
+title
+    <b>Tracker system</b>
+    <i>C4 Context</i>
+end title
+
+Person(user, "User", "Пользователь системы трекера")
+
+System(taskTrackerSystem, "Трекер задач", "Позволяет пользователям менеджить задачи")
+
+Rel(user, taskTrackerSystem, "Создание/редактирование/просмотр задач, просмотр статистики")
+
+@enduml
