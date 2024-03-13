@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: your_database_name
+      POSTGRES_USER: your_database_user
+      POSTGRES_PASSWORD: your_database_password
+
+  user_service:
+    build:
+      context: .
+    ports:
+      - "5100:5100"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URI: postgresql://your_database_user:your_database_password@postgres:5432/your_database_name
+    platform: linux/amd64
