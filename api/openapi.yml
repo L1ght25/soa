@@ -1,0 +1,107 @@
+openapi: 3.0.0
+info:
+  title: User Service API
+  version: 1.0.0
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                birth_date:
+                  type: string
+                  format: date
+                email:
+                  type: string
+                  format: email
+                phone_number:
+                  type: string
+                  pattern: '^\+?\d+$'
+              required:
+                - username
+                - password
+                - first_name
+                - last_name
+                - birth_date
+                - email
+                - phone_number
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Bad request, missing or invalid parameters
+        '401':
+          description: User already exists
+
+  /update:
+    put:
+      summary: Update user data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                birth_date:
+                  type: string
+                  format: date
+                email:
+                  type: string
+                  format: email
+                phone_number:
+                  type: string
+                  pattern: '^\+?\d+$'
+              required:
+                - user_id
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: Bad request, missing or invalid parameters
+        '401':
+          description: Invalid or expired token
+        '404':
+          description: User not found
+
+  /login:
+    post:
+      summary: Authenticate user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        '201':
+          description: User authenticated successfully
+        '401':
+          description: Unauthorized, invalid credentials
