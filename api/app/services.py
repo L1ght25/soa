@@ -1,3 +1,5 @@
+import datetime
+import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import db, User
 
@@ -19,6 +21,7 @@ def create_user(username, password, first_name, last_name, birth_date, email, ph
     db.session.commit()
     return True
 
+
 def update_user(user_id, first_name, last_name, birth_date, email, phone_number):
     user = User.query.get(user_id)
     if user:
@@ -32,8 +35,12 @@ def update_user(user_id, first_name, last_name, birth_date, email, phone_number)
     return False
 
 
-def authenticate_user(username, password):
+def authenticate_user(username, password, secret_key):
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password, password):
-        return True
+        token = jwt.encode({
+            'username': user.username,
+            'exp' : datetime.datetime.now() + datetime.timedelta(minutes = 30)
+        }, secret_key)
+        return token.decode('UTF-8')
     return False

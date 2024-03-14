@@ -17,4 +17,6 @@ services:
       - postgres
     environment:
       DATABASE_URI: postgresql://your_database_user:your_database_password@postgres:5432/your_database_name
+    env_file:
+      - .env
     platform: linux/amd64
