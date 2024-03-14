@@ -77,6 +77,8 @@ def login_user_route():
     data = request.get_json()
     token = authenticate_user(data['username'], data['password'], SECRET_KEY)
     if token:
-        return jsonify({"message": "User authenticated successfully", "token": token}), 201
+        resp = jsonify({"message": "User authenticated successfully"})
+        resp.headers.add('x-access-token', token)
+        return resp, 201
     else:
         return jsonify({"message": "Unauthorized, invalid credentials"}), 401

@@ -25,8 +25,8 @@ def login_user(username, password):
         'password': password
     }
     response = requests.post(url, json=data)
-    print(response.json(), response.status_code)
-    return response.json()['token']
+    print(response.json(), response.status_code, response.headers)
+    return response.headers.get('x-access-token')
 
 # Обновление данных пользователя
 def update_user(token, user_id, first_name, last_name, birth_date, email, phone_number):
