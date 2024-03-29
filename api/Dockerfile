@@ -2,12 +2,11 @@ FROM python:3.8
 
 ENV PYTHONUNBUFFERED 1
 
-COPY requirements.txt /app/
+COPY /api /api
+COPY /proto /proto
 
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install -r /api/requirements.txt
 
-COPY . /app/
+RUN /api/app/proto/generate.sh
 
-WORKDIR /app
-
-CMD ["python3", "run.py"]
+CMD ["python3", "/api/run.py"]

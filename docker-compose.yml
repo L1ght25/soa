@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: main_service
+      POSTGRES_USER: rest_api
+      POSTGRES_PASSWORD: '${MAIN_SERVICE_PASSWORD}'
+
+  postgres_tasks:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: tasks_service
+      POSTGRES_USER: grpc
+      POSTGRES_PASSWORD: '${TASKS_SERVICE_PASSWORD}'
+
+  user_service:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "5100:5100"
+    depends_on:
+      - postgres
+    restart: on-failure:10  # because of slow postgres init
+    environment:
+      DATABASE_URI: 'postgresql://rest_api:${MAIN_SERVICE_PASSWORD}@postgres:5432/main_service'
+      GRPC_SERVICE: 'tasks_service:50051'
+    env_file:
+      - .env
+    platform: linux/amd64
+
+  tasks_service:
+    build:
+      context: .
+      dockerfile: grpc_service/Dockerfile
+    ports:
+      - "50051:50051"
+    depends_on:
+      - postgres_tasks
+    restart: on-failure:10  # because of slow postgres init
+    environment:
+      DATA_SOURCE: 'host=postgres_tasks port=5432 user=grpc password=${TASKS_SERVICE_PASSWORD} dbname=tasks_service sslmode=disable'
+    env_file:
+      - .env
