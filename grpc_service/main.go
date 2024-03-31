@@ -158,7 +158,7 @@ func (s *server) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) (*pb
 	}
 
 	if rowsAffected == 0 {
-		result, _ := db.ExecContext(ctx, "SELECT FROM tasks WHERE id = $1", req.TaskId)
+		result, _ := db.ExecContext(ctx, "SELECT id FROM tasks WHERE id = $1", req.TaskId)
 		rowsAffected, _ := result.RowsAffected()
 		if rowsAffected != 0 {
 			return nil, status.Errorf(codes.PermissionDenied, "Access denied")
