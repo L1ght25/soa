@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: main_service
+      POSTGRES_USER: rest_api
+      POSTGRES_PASSWORD: '${MAIN_SERVICE_PASSWORD}'
+
+  user_service:
+    build:
+      context: .
+    ports:
+      - "5100:5100"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URI: 'postgresql://rest_api:${MAIN_SERVICE_PASSWORD}@postgres:5432/main_service'
+    env_file:
+      - .env
+    platform: linux/amd64
