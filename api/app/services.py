@@ -39,7 +39,7 @@ def authenticate_user(username, password, secret_key):
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password, password):
         token = jwt.encode({
-            'username': user.username,
+            'userID': user.id,
             'exp' : datetime.datetime.now() + datetime.timedelta(minutes = 30)
         }, secret_key)
         return token.decode('UTF-8')

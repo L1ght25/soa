@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package taskservice;
+
+option go_package = "./proto";
+
+service TaskService {
+    rpc CreateTask(CreateTaskRequest) returns (Task);
+    rpc UpdateTask(UpdateTaskRequest) returns (Task);
+    rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
+    rpc GetTaskById(GetTaskByIdRequest) returns (Task);
+    rpc GetTaskListWithPagination(GetTaskListRequest) returns (GetTaskListResponse);
+}
+
+message CreateTaskRequest {
+    string title = 1;
+    string content = 2;
+}
+
+message UpdateTaskRequest {
+    int32 task_id = 1;
+    string title = 2;
+    string content = 3;
+}
+
+message DeleteTaskRequest {
+    int32 task_id = 1;
+}
+
+message DeleteTaskResponse {
+    bool success = 1;
+}
+
+message GetTaskByIdRequest {
+    int32 task_id = 1;
+}
+
+message GetTaskListRequest {
+    int32 page_number = 1;
+    int32 page_size = 2;
+}
+
+message GetTaskListResponse {
+    repeated Task tasks = 1;
+}
+
+message Task {
+    int32 id = 1;
+    string title = 2;
+    string content = 3;
+    int32 createdByUserID = 4;
+}
