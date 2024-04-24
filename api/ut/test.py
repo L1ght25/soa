@@ -62,8 +62,20 @@ def get_task(token, task_id):
 
 
 def get_pag(token, page_number, page_size):
-    url = f'{BASE_URL}/tasks/page'
-    response = requests.get(url, json={'page_number': page_number, 'page_size': page_size}, headers={'x-access-token': token})
+    url = f'{BASE_URL}/tasks/page/{page_number}/{page_size}'
+    response = requests.get(url, headers={'x-access-token': token})
+    print(response.json(), response.status_code)
+
+
+def send_view(token, task_id):
+    url = f'{BASE_URL}/tasks/{task_id}/view'
+    response = requests.post(url, headers={'x-access-token': token})
+    print(response.json(), response.status_code)
+
+
+def send_like(token, task_id):
+    url = f'{BASE_URL}/tasks/{task_id}/like'
+    response = requests.post(url, headers={'x-access-token': token})
     print(response.json(), response.status_code)
 
 
@@ -77,3 +89,6 @@ if __name__ == '__main__':
     get_task("Test with invalid token", task_id)
 
     get_pag(token, 1, 5)
+
+    send_view(token, task_id)
+    send_like(token, task_id)

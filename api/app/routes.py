@@ -1,21 +1,30 @@
 from functools import wraps
+import json
+
+import kafka.errors
 from flask import Blueprint, jsonify, request
 import jwt
 import os
+import kafka
 
 from .models import db, User
 from .services import create_user, update_user, authenticate_user
 
 from google.protobuf.json_format import MessageToJson
 import grpc
+
 from .proto.task_service_pb2_grpc import TaskServiceStub
 from .proto import task_service_pb2
+
+from .proto.event_pb2 import Event, EventType
 
 
 users_bp = Blueprint('users', __name__)
 tasks_bp = Blueprint('tasks', __name__)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+
+kafka_producer = kafka.KafkaProducer(bootstrap_servers=[os.getenv("KAFKA_SERVICE")], value_serializer=lambda m: m.SerializeToString())
 
 def grpc_connect():
     channel = grpc.insecure_channel(os.getenv("GRPC_SERVICE"))
@@ -95,7 +104,7 @@ def login_user_route():
         return jsonify({"message": "Unauthorized, invalid credentials"}), 401
 
 
-@tasks_bp.route('/', methods=['POST'])
+@tasks_bp.route('/create', methods=['POST'])
 @token_required
 def create_task():
     data = request.get_json()
@@ -125,7 +134,7 @@ def select_task(task_id):
     try:
         client = grpc_connect()
         response = client.GetTaskById(
-            task_service_pb2.GetTaskByIdRequest(task_id=task_id),
+            task_service_pb2.GetTaskByIdRequest(task_id=int(task_id)),
             metadata=(('x-access-token', f'Bearer {token}'),)
         )
         return jsonify({
@@ -146,7 +155,7 @@ def update_task(task_id):
     try:
         client = grpc_connect()
         response = client.UpdateTask(
-            task_service_pb2.UpdateTaskRequest(task_id=task_id, title=data.get('title'), content=data.get('content')),
+            task_service_pb2.UpdateTaskRequest(task_id=int(task_id), title=data.get('title'), content=data.get('content')),
             metadata=(('x-access-token', f'Bearer {token}'),)
         )
         return jsonify({
@@ -166,7 +175,7 @@ def delete_task(task_id):
     try:
         client = grpc_connect()
         response = client.DeleteTask(
-            task_service_pb2.DeleteTaskRequest(task_id=task_id),
+            task_service_pb2.DeleteTaskRequest(task_id=int(task_id)),
             metadata=(('x-access-token', f'Bearer {token}'),)
         )
         if not response.success:
@@ -180,18 +189,41 @@ def delete_task(task_id):
         return jsonify({"message": f"rpc error: {e}"}), 500
 
 
-@tasks_bp.route('/page', methods=['GET'])
+@tasks_bp.route('/page/<page_number>/<page_size>', methods=['GET'])
 @token_required
-def get_pag():
-    data = request.get_json()
+def get_pag(page_number, page_size):
     token = request.headers['x-access-token']
 
     try:
         client = grpc_connect()
         response = client.GetTaskListWithPagination(
-            task_service_pb2.GetTaskListRequest(page_number=data.get('page_number'), page_size=data.get('page_size')),
+            task_service_pb2.GetTaskListRequest(page_number=int(page_number), page_size=int(page_size)),
             metadata=(('x-access-token', f'Bearer {token}'),)
         )
         return MessageToJson(response), 200
     except grpc.RpcError as e:
         return jsonify({"message": f"rpc error: {e}"}), 500
+
+
+@tasks_bp.route('/<task_id>/view', methods=['POST'])
+@token_required
+def send_view(task_id):
+    try:
+        kafka_producer.send('view-topic', Event(task_id=int(task_id), event_type=EventType.VIEW))
+        return jsonify({
+            'message': 'view sent successfully'
+        }), 201
+    except Exception as e:
+        return jsonify({"message": f"send to topic error: {e}"}), 500
+
+
+@tasks_bp.route('/<task_id>/like', methods=['POST'])
+@token_required
+def send_like(task_id):
+    try:
+        kafka_producer.send('like-topic', Event(task_id=int(task_id), event_type=EventType.LIKE))
+        return jsonify({
+            'message': 'like sent successfully'
+        }), 201
+    except Exception as e:
+        return jsonify({"message": f"send to topic error: {e}"}), 500

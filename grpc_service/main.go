@@ -172,7 +172,7 @@ func (s *server) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) (*pb
 }
 
 func (s *server) GetTaskById(ctx context.Context, req *pb.GetTaskByIdRequest) (*pb.Task, error) {
-	userID, err := s.authenticate(ctx)
+	_, err := s.authenticate(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -181,10 +181,6 @@ func (s *server) GetTaskById(ctx context.Context, req *pb.GetTaskByIdRequest) (*
 	err = db.QueryRowContext(ctx, "SELECT id, title, content, createdBy FROM tasks WHERE id = $1", req.TaskId).Scan(&task.Id, &task.Title, &task.Content, &task.CreatedByUserID)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "task not found")
-	}
-
-	if userID != task.CreatedByUserID {
-		return nil, status.Errorf(codes.PermissionDenied, "Access denied")
 	}
 
 	return &task, nil
