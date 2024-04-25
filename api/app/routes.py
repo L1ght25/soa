@@ -209,7 +209,7 @@ def get_pag(page_number, page_size):
 @token_required
 def send_view(task_id):
     try:
-        kafka_producer.send('view-topic', Event(task_id=int(task_id), event_type=EventType.VIEW))
+        kafka_producer.send('event-topic', Event(task_id=int(task_id), event_type=EventType.VIEW))
         return jsonify({
             'message': 'view sent successfully'
         }), 201
@@ -221,7 +221,7 @@ def send_view(task_id):
 @token_required
 def send_like(task_id):
     try:
-        kafka_producer.send('like-topic', Event(task_id=int(task_id), event_type=EventType.LIKE))
+        kafka_producer.send('event-topic', Event(task_id=int(task_id), event_type=EventType.LIKE))
         return jsonify({
             'message': 'like sent successfully'
         }), 201

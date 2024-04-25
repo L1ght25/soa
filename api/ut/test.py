@@ -90,5 +90,5 @@ if __name__ == '__main__':
 
     get_pag(token, 1, 5)
 
-    send_view(token, task_id)
-    send_like(token, task_id)
+    send_view(token, 8)
+    send_like(token, 8)

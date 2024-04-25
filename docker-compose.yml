@@ -67,3 +67,22 @@ services:
       DATA_SOURCE: 'host=postgres_tasks port=5432 user=grpc password=${TASKS_SERVICE_PASSWORD} dbname=tasks_service sslmode=disable'
     env_file:
       - .env
+
+  statistics_service:
+    build:
+      context: .
+      dockerfile: statistics_service/Dockerfile
+    ports:
+      - "8080:8080"
+
+  clickhouse:
+    image: yandex/clickhouse-server
+    depends_on:
+      - kafka
+    volumes:
+      - ./statistics_service/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./proto/event.proto:/var/lib/clickhouse/format_schemas/event.proto
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    platform: linux/amd64
