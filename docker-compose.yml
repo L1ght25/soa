@@ -86,3 +86,8 @@ services:
       - "8123:8123"
       - "9000:9000"
     platform: linux/amd64
+    environment:
+      - CLICKHOUSE_DB=statistics
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - CLICKHOUSE_USER=statistics
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
