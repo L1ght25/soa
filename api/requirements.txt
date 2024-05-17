@@ -6,3 +6,4 @@ connexion[flask]==3.0.6
 PyJWT==1.7.1
 grpcio==1.62.1
 grpcio-tools==1.62.1
+kafka-python==2.0.2

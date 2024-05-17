@@ -106,7 +106,7 @@ paths:
         '401':
           description: Unauthorized, invalid credentials
 
-  /tasks:
+  /tasks/create:
     post:
       summary: Create a task
       requestBody:
@@ -215,21 +215,23 @@ paths:
           description: Invalid or expired token
         '500':
           description: Internal error
-  /tasks/page:
+  /tasks/page/{page_number}/{page_size}:
     get:
       summary: get tasks pagination
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                page_size:
-                  type: integet
-                page_number:
-                  type: ingeger
+      parameters:
+        - in: path
+          name: page_number
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: page_size
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -241,6 +243,40 @@ paths:
                     type: string
                   content:
                     type: string
+        '401':
+          description: Invalid or expired token
+        '500':
+          description: Internal error
+  /tasks/{task_id}/like:
+    post:
+      summary: Send like to task
+      parameters:
+        - name: task_id
+          in: path
+          description: task_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: like sent successfully
+        '401':
+          description: Invalid or expired token
+        '500':
+          description: Internal error
+  /tasks/{task_id}/view:
+    post:
+      summary: Send view to task
+      parameters:
+        - name: task_id
+          in: path
+          description: task_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: view sent successfully
         '401':
           description: Invalid or expired token
         '500':

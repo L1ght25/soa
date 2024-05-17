@@ -15,6 +15,27 @@ services:
       POSTGRES_USER: grpc
       POSTGRES_PASSWORD: '${TASKS_SERVICE_PASSWORD}'
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+
+  kafka:
+    image: bitnami/kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
   user_service:
     build:
       context: .
@@ -23,10 +44,12 @@ services:
       - "5100:5100"
     depends_on:
       - postgres
+      - kafka
     restart: on-failure:10  # because of slow postgres init
     environment:
       DATABASE_URI: 'postgresql://rest_api:${MAIN_SERVICE_PASSWORD}@postgres:5432/main_service'
       GRPC_SERVICE: 'tasks_service:50051'
+      KAFKA_SERVICE: 'kafka:9092'
     env_file:
       - .env
     platform: linux/amd64
@@ -44,3 +67,27 @@ services:
       DATA_SOURCE: 'host=postgres_tasks port=5432 user=grpc password=${TASKS_SERVICE_PASSWORD} dbname=tasks_service sslmode=disable'
     env_file:
       - .env
+
+  statistics_service:
+    build:
+      context: .
+      dockerfile: statistics_service/Dockerfile
+    ports:
+      - "8080:8080"
+
+  clickhouse:
+    image: yandex/clickhouse-server
+    depends_on:
+      - kafka
+    volumes:
+      - ./statistics_service/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./proto/event.proto:/var/lib/clickhouse/format_schemas/event.proto
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    platform: linux/amd64
+    environment:
+      - CLICKHOUSE_DB=statistics
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - CLICKHOUSE_USER=statistics
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}

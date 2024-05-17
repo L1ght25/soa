@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package event;
+
+enum EventType {
+    VIEW = 0;
+    LIKE = 1;
+}
+
+message Event {
+    int32 task_id = 1;
+    EventType event_type = 2; 
+}
