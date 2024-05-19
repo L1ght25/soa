@@ -22,6 +22,9 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 22181:2181
+    volumes:
+    - ./zoo/data:/var/lib/zookeeper/data
+    - ./zoo/log:/var/lib/zookeeper/log
 
   kafka:
     image: bitnami/kafka:latest

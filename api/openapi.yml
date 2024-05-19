@@ -56,8 +56,6 @@ paths:
             schema:
               type: object
               properties:
-                user_id:
-                  type: integer
                 first_name:
                   type: string
                 last_name:
@@ -71,8 +69,6 @@ paths:
                 phone_number:
                   type: string
                   pattern: '^\+?\d+$'
-              required:
-                - user_id
       responses:
         '200':
           description: User updated successfully
