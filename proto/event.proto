@@ -2,6 +2,9 @@ syntax = "proto3";
 
 package event;
 
+option go_package = "./proto";
+
+
 enum EventType {
     VIEW = 0;
     LIKE = 1;

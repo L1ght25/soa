@@ -14,6 +14,8 @@ import grpc
 
 users_bp = Blueprint('users', __name__)
 tasks_bp = Blueprint('tasks', __name__)
+stats_bp = Blueprint('stats', __name__)
+
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
@@ -205,3 +207,54 @@ def send_like(task_id):
         }), 201
     except Exception as e:
         return jsonify({"message": f"send to topic error: {e}"}), 500
+
+
+@stats_bp.route('/tasks/<int:id>', methods=['GET'])
+def get_stats(id):
+    token = request.headers['x-access-token']
+
+    try:
+        response = services.get_task_stats(id, token)
+        return jsonify({
+            'task_id': response.task_id,
+            'total_likes': response.likes_count,
+            'total_views': response.views_count
+        }), 200
+    except grpc.RpcError as e:
+        return jsonify({"message": f"rpc error: {e}"}), 500
+
+
+@stats_bp.route('/top-tasks', methods=['GET'])
+def get_top_tasks():
+    token = request.headers['x-access-token']
+
+    try:
+        sort_by = request.args.get('sort_by', 'likes')
+        response = services.get_top_tasks(sort_by, token)
+        tasks_json = [{
+            'task_id': task.task_id,
+            'author': services.get_username_by_id(task.author_id),
+            'total_likes': task.likes_count,
+            'total_views': task.views_count
+        } for task in response.tasks]
+
+        return jsonify(tasks_json), 200
+    except grpc.RpcError as e:
+        return jsonify({"message": f"rpc error: {e}"}), 500
+
+
+@stats_bp.route('/top-users', methods=['GET'])
+def get_top_users():
+    token = request.headers['x-access-token']
+
+    try:
+        response = services.get_top_users(token)
+
+        users_json = [{
+            'author': services.get_username_by_id(user.user_id),
+            'total_likes': user.likes_count
+        } for user in response.users]
+
+        return jsonify(users_json), 200
+    except grpc.RpcError as e:
+        return jsonify({"message": f"rpc error: {e}"}), 500

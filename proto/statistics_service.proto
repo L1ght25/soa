@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package stats;
+option go_package = "./proto";
+
+import "event.proto";
+
+service StatsService {
+    rpc GetTaskStats(TaskRequest) returns (TaskStatsResponse);
+    rpc GetTopTasks(TopTasksRequest) returns (TopTasksResponse);
+    rpc GetTopUsers(TopUsersRequest) returns (TopUsersResponse);
+}
+
+message TaskRequest {
+    int32 task_id = 1;
+}
+
+message TaskStatsResponse {
+    int32 task_id = 1;
+    int32 author_id = 2;
+    uint64 views_count = 3;
+    uint64 likes_count = 4;
+}
+
+message TopTasksRequest {
+    event.EventType metric = 1;
+}
+
+message TopTasksResponse {
+    repeated TaskStatsResponse tasks = 1;
+}
+
+message TopUsersRequest {}
+
+message UserStats {
+    int32 user_id = 1;
+    uint64 likes_count = 2;
+}
+
+message TopUsersResponse {
+    repeated UserStats users = 1;
+}

@@ -277,3 +277,84 @@ paths:
           description: Invalid or expired token
         '500':
           description: Internal error
+  /stats/tasks/{id}:
+    get:
+      summary: Total likes and views for task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Task ID
+      responses:
+        '200':
+          description: likes and views
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  views:
+                    type: integer
+                  likes:
+                    type: integer
+        '401':
+          description: Invalid or expired token
+        '500':
+          description: Internal error
+  /top-posts:
+    get:
+      summary: Top 5 tasks by views or likes
+      parameters:
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [likes, views]
+            default: likes
+          description: Sort parameter (likes or views)
+      responses:
+        '200':
+          description: Top 5 tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    author:
+                      type: string
+                    count:
+                      type: integer
+        '401':
+          description: Invalid or expired token
+        '500':
+          description: Internal error
+  /top-users:
+    get:
+      summary: Top 3 authors by likes
+      responses:
+        '200':
+          description: Top 3 authors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                    total_likes:
+                      type: integer
+        '401':
+          description: Invalid or expired token
+        '500':
+          description: Internal error

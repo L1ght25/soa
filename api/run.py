@@ -1,6 +1,6 @@
 from flask import Flask
 from app.models import db
-from app.routes import users_bp, tasks_bp
+from app.routes import users_bp, tasks_bp, stats_bp
 from connexion import App
 import os
 
@@ -31,5 +31,8 @@ if __name__ == '__main__':
 
     # Регистрируем Blueprint с роутами тасок
     app.register_blueprint(tasks_bp, url_prefix='/tasks')
+
+    # Регистрируем Blueprint с роутами статистики
+    app.register_blueprint(stats_bp, url_prefix='/stats')
 
     app.run(debug=True, host="0.0.0.0", port="5100")

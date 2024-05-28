@@ -1,3 +1,5 @@
+USE statistics;
+
 CREATE TABLE IF NOT EXISTS task_events (
     task_id Int32,
     event_type Enum8('VIEW' = 0, 'LIKE' = 1),
