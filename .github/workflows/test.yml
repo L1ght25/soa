@@ -36,6 +36,14 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: '^1.16'
+    
+    - name: Install protobuf
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+    
+    - name: Generate proto files for Stats service
+      run: ./statistics_service/proto/generate.sh
 
     - name: Install dependencies
       run: cd statistics_service && go mod download
