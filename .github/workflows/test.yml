@@ -1,0 +1,63 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test-python:
+    name: Test Main Service
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r api/requirements.txt
+
+    - name: Run Main Service unit tests
+      run: python3 api/main_service_test.py
+
+  test-stats-service:
+    name: Test Stats Service
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '^1.16'
+
+    - name: Install dependencies
+      run: cd statistics_service && go mod download
+
+    - name: Run Go Service 1 unit tests
+      run: cd statistics_service/tests && go test -v 
+
+  test-tasks-service:
+    name: Test Tasks Service
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '^1.16'
+
+    - name: Install dependencies
+      run: cd grpc_service && go mod download
+
+    - name: Run Go Service 2 unit tests
+      run: cd grpc_service/tests && go test -v
