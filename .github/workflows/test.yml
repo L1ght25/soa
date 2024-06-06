@@ -41,12 +41,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y protobuf-compiler
-    
-    - name: Generate proto files for Stats service
-      run: ./statistics_service/proto/generate.sh --local
 
     - name: Install dependencies
-      run: cd statistics_service && go mod download
+      run: cd statistics_service && go mod download && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+    - name: Generate proto files for Stats service
+      run: ./statistics_service/proto/generate.sh --local
 
     - name: Run Go Service 1 unit tests
       run: cd statistics_service/tests && go test -v 
