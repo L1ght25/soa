@@ -17,7 +17,7 @@ from .proto.event_pb2 import EventType
 from .proto.event_pb2 import Event
 
 
-kafka_producer = kafka.KafkaProducer(bootstrap_servers=[os.getenv("KAFKA_SERVICE")], value_serializer=lambda m: m.SerializeToString())
+kafka_producer = kafka.KafkaProducer(bootstrap_servers=[os.getenv("KAFKA_SERVICE")], value_serializer=lambda m: m.SerializeToString()) if os.getenv("KAFKA_SERVICE") is not None else None
 
 def tasks_service_connect():
     channel = grpc.insecure_channel(os.getenv("GRPC_SERVICE"))

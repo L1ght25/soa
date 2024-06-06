@@ -1,0 +1,82 @@
+name: CI
+
+on: push
+
+jobs:
+  test-python:
+    name: Test Main Service
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r api/requirements.txt
+
+    - name: Generate proto files for Main service
+      run: ./api/app/proto/generate.sh --local
+
+    - name: Run Main Service unit tests
+      run: python3 api/main_service_test.py
+
+  test-stats-service:
+    name: Test Stats Service
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '^1.16'
+    
+    - name: Install protobuf
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+
+    - name: Install dependencies
+      run: cd statistics_service && go mod download && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+    - name: Generate proto files for Stats service
+      run: ./statistics_service/proto/generate.sh --local
+
+    - name: Run Stats service unit tests
+      run: cd statistics_service/tests && go test -v 
+
+  test-tasks-service:
+    name: Test Tasks Service
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '^1.16'
+
+    - name: Install protobuf
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+
+    - name: Install dependencies
+      run: cd grpc_service && go mod download && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+    - name: Generate proto files for Stats service
+      run: ./grpc_service/proto/generate.sh --local
+
+    - name: Run Tasks service unit tests
+      run: cd grpc_service/tests && go test -v

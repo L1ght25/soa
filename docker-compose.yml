@@ -104,3 +104,20 @@ services:
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
     env_file:
       - .env
+
+  tests:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    depends_on:
+      - clickhouse
+      - kafka
+    restart: on-failure:10  # because of slow postgres init
+    environment:
+      - KAFKA_SERVICE=kafka:9092
+      - CLICKHOUSE_DB=statistics
+      - CLICKHOUSE_USER=statistics
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+    env_file:
+      - .env
+    platform: linux/amd64

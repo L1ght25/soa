@@ -1,0 +1,4 @@
+kafka-python-ng==2.2.2
+clickhouse_driver==0.2.7
+grpcio==1.62.1
+grpcio-tools==1.62.1
