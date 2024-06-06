@@ -1,0 +1,13 @@
+{'message': 'User registered successfully'} 201
+{'message': 'User authenticated successfully'} 201 {'Server': 'Werkzeug/2.2.1 Python/3.8.19', 'Date': 'Thu, 06 Jun 2024 18:51:13 GMT', 'Content-Type': 'application/json', 'Content-Length': '51', 'x-access-token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySUQiOjEsImV4cCI6MTcxNzcwMTY3M30.dh6dbNBLHCL5couEQa2q_88fNnsqHmU4Mf-WnZscC3s', 'Connection': 'close'}
+{'message': 'User updated successfully'} 200
+{'content': 'this is test task', 'id': 1, 'message': 'Created task successfully', 'title': 'test task'} 201
+{'content': 'this is test task', 'id': 1, 'title': 'test task'} 200
+{'message': 'Token is invalid'} 401
+{'tasks': [{'id': 1, 'title': 'test task', 'content': 'this is test task'}]} 200
+{'message': 'view sent successfully'} 201
+{'message': 'like sent successfully'} 201
+{'task_id': 1, 'total_likes': 1, 'total_views': 0} 200
+by likes: [{'author': 'testuser', 'task_id': 1, 'total_likes': 1, 'total_views': 0}] 200
+by views: [{'author': 'testuser', 'task_id': 1, 'total_likes': 1, 'total_views': 0}] 200
+[{'author': 'testuser', 'total_likes': 1}] 200
