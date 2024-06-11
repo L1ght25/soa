@@ -1,13 +1,18 @@
-CREATE TABLE IF NOT EXISTS task_statistics (
+USE statistics;
+
+CREATE TABLE IF NOT EXISTS task_events (
     task_id Int32,
-    likes UInt64 DEFAULT 0,
-    views UInt64 DEFAULT 0
-) ENGINE = SummingMergeTree()
-ORDER BY task_id;
+    event_type Enum8('VIEW' = 0, 'LIKE' = 1),
+    author_id Int32,
+    user_id Int32
+) ENGINE = ReplacingMergeTree()
+ORDER BY (event_type, task_id, user_id);
 
 CREATE TABLE IF NOT EXISTS events (
     task_id Int32,
-    event_type Enum8('VIEW' = 0, 'LIKE' = 1)
+    event_type Enum8('VIEW' = 0, 'LIKE' = 1),
+    author_id Int32,
+    user_id Int32
 )
 ENGINE = Kafka
 SETTINGS kafka_broker_list = 'kafka:9092',
@@ -17,10 +22,10 @@ SETTINGS kafka_broker_list = 'kafka:9092',
        kafka_schema = 'event.proto:Event',
        kafka_max_block_size = 1048576;
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS mv_likes_views TO task_statistics AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS mv_unique_events TO task_events AS
 SELECT
     task_id,
-    if(event_type = 'LIKE', 1, 0) AS likes,
-    if(event_type = 'VIEW', 1, 0) AS views
-FROM
-    events;
+    event_type,
+    author_id,
+    user_id
+FROM events;

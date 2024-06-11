@@ -2,6 +2,7 @@ FROM golang:latest
 
 COPY /grpc_service /grpc_service
 COPY /proto /proto
+COPY /common /common
 
 WORKDIR /grpc_service
 

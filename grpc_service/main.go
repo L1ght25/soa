@@ -7,59 +7,18 @@ import (
 	"log"
 	"net"
 	"os"
-	"strings"
 
-	jwt "github.com/dgrijalva/jwt-go"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	pb "grpc_service/proto"
+
+	"common"
 )
 
-var (
-	secretKey = os.Getenv("SECRET_KEY")
-	db        *sql.DB
-)
-
-func verifyToken(tokenString string) (int32, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
-	if err != nil {
-		return -1, err
-	}
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		userID := int32(claims["userID"].(float64))
-		return userID, nil
-	} else {
-		return -1, err
-	}
-}
-
-func (s *server) authenticate(ctx context.Context) (int32, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return -1, status.Error(codes.Unauthenticated, "missing metadata")
-	}
-
-	tokenHeader, ok := md["x-access-token"]
-
-	if !ok || len(tokenHeader) == 0 {
-		return -1, status.Error(codes.Unauthenticated, "missing token")
-	}
-
-	token := strings.TrimPrefix(tokenHeader[0], "Bearer ")
-
-	userID, err := verifyToken(token)
-	if err != nil {
-		return -1, status.Errorf(codes.Unauthenticated, "invalid authorization token: %v", err)
-	}
-
-	return userID, nil
-}
+var db *sql.DB
 
 func connectDB() (*sql.DB, error) {
 	connStr := os.Getenv("DATA_SOURCE")
@@ -95,7 +54,7 @@ type server struct {
 }
 
 func (s *server) CreateTask(ctx context.Context, req *pb.CreateTaskRequest) (*pb.Task, error) {
-	userID, err := s.authenticate(ctx)
+	userID, err := common.Authenticate(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +74,7 @@ func (s *server) CreateTask(ctx context.Context, req *pb.CreateTaskRequest) (*pb
 }
 
 func (s *server) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) (*pb.Task, error) {
-	userID, err := s.authenticate(ctx)
+	userID, err := common.Authenticate(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +101,7 @@ func (s *server) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) (*pb
 }
 
 func (s *server) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) (*pb.DeleteTaskResponse, error) {
-	userID, err := s.authenticate(ctx)
+	userID, err := common.Authenticate(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +131,7 @@ func (s *server) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) (*pb
 }
 
 func (s *server) GetTaskById(ctx context.Context, req *pb.GetTaskByIdRequest) (*pb.Task, error) {
-	_, err := s.authenticate(ctx)
+	_, err := common.Authenticate(ctx)
 	if err != nil {
 		return nil, err
 	}
