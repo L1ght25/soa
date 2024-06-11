@@ -116,3 +116,13 @@ if __name__ == '__main__':
     get_stats(token, 1)
     get_top_tasks(token)
     get_top_users(token)
+
+    register_user('testuser2', 'password123', 'John', 'Doe', '2000-01-01', 'testwefweafwe@example.com', '1234567890')
+    token = login_user('testuser2', 'password123')
+    send_view(token, 1)
+    send_like(token, 1)
+
+    register_user('testuser3', 'password123', 'John', 'Doe', '2000-01-01', 'testwefweafefwefwe@example.com', '1234567890')
+    token = login_user('testuser3', 'password123')
+    send_view(token, 1)
+    send_like(token, 1)

@@ -64,14 +64,14 @@ func (s *server) GetTopTasks(ctx context.Context, req *pb.TopTasksRequest) (*pb.
 	query :=
 		`
         SELECT
-            task_id,
+			task_id,
 			author_id,
-            sum(views_count) AS views_count,
-            sum(likes_count) AS likes_count
-        FROM
-			mv_likes_views FINAL
-        GROUP BY
-            (task_id, author_id)
+			countIf(event_type = 'LIKE') AS likes_count,
+			countIf(event_type = 'VIEW') AS views_count
+		FROM
+			task_events FINAL
+		GROUP BY
+			(task_id, author_id)
         ORDER BY
             ` + metric + ` DESC
         LIMIT 5
@@ -112,9 +112,9 @@ func (s *server) GetTopUsers(ctx context.Context, req *pb.TopUsersRequest) (*pb.
 	query := `
         SELECT
             author_id,
-            sum(likes_count) AS likes_count
+            countIf(event_type = 'LIKE') AS likes_count
         FROM
-            mv_user_likes FINAL
+            task_events FINAL
         GROUP BY
             author_id
         ORDER BY

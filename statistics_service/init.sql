@@ -29,23 +29,3 @@ SELECT
     author_id,
     user_id
 FROM events;
-
-CREATE MATERIALIZED VIEW IF NOT EXISTS mv_likes_views
-ENGINE = AggregatingMergeTree()
-ORDER BY (task_id, author_id)
-AS SELECT
-    task_id,
-    author_id,
-    countIf(event_type = 'LIKE') AS likes_count,
-    countIf(event_type = 'VIEW') AS views_count
-FROM task_events
-GROUP BY (task_id, author_id);
-
-CREATE MATERIALIZED VIEW IF NOT EXISTS mv_user_likes
-ENGINE = AggregatingMergeTree()
-ORDER BY author_id
-AS SELECT
-    author_id,
-    countIf(event_type = 'LIKE') AS likes_count
-FROM task_events
-GROUP BY author_id;
