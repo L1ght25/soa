@@ -33,10 +33,10 @@ func (s *server) GetTaskStats(ctx context.Context, req *pb.TaskRequest) (*pb.Tas
 	query :=
 		`
         SELECT
-			sum(likes_count) AS likes_count,
-			sum(views_count) AS views_count
+			countIf(event_type = 'LIKE') AS likes_count,
+			countIf(event_type = 'VIEW') AS views_count
         FROM
-			mv_likes_views FINAL
+			task_events FINAL
         WHERE
             task_id = ?
 		GROUP BY task_id
@@ -90,7 +90,7 @@ func (s *server) GetTopTasks(ctx context.Context, req *pb.TopTasksRequest) (*pb.
 			viewsCount uint64
 			likesCount uint64
 		)
-		if err := rows.Scan(&taskId, &authorId, &viewsCount, &likesCount); err != nil {
+		if err := rows.Scan(&taskId, &authorId, &likesCount, &viewsCount); err != nil {
 			return nil, err
 		}
 		tasks = append(tasks, &pb.TaskStatsResponse{

@@ -126,3 +126,34 @@ if __name__ == '__main__':
     token = login_user('testuser3', 'password123')
     send_view(token, 1)
     send_like(token, 1)
+
+    token = login_user('testuser', 'password123')
+    send_view(token, 2)
+
+    token = login_user('testuser2', 'password123')
+    send_view(token, 2)
+
+    token = login_user('testuser2', 'password123')
+    send_view(token, 2)
+
+    register_user('testuser4', 'password123', 'John', 'Doe', '2000-01-01', 'testwergregrefweafefwefwe@example.com', '1234567890')
+    token = login_user('testuser4', 'password123')
+    send_view(token, 2)
+
+    register_user('testuser5', 'password123', 'John', 'Doe', '2000-01-01', 'testwergregrefwdeafefwefwe@example.com', '1234567890')
+    token = login_user('testuser5', 'password123')
+    send_view(token, 2)
+
+    token = login_user('testuser', 'password123')
+    send_like(token, 3)
+    token = login_user('testuser2', 'password123')
+    send_like(token, 3)
+    token = login_user('testuser3', 'password123')
+    send_like(token, 3)
+    token = login_user('testuser4', 'password123')
+    send_like(token, 3)
+    token = login_user('testuser5', 'password123')
+    send_like(token, 3)
+
+    get_top_tasks(token)
+    get_top_users(token)
